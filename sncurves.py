@@ -172,11 +172,11 @@ Arguments:
             S-N curve parameters (e.g. parameter k for curve T)
 
 Returns: a number or a numpy array with a shape corresponding to *sigma*.
-    """.format(make_description(c), compliance()).strip()
+    """.format(_make_description(c), compliance()).strip()
     return sn
 
 
-def make_description(params):    
+def _make_description(params):    
     descr = []
     if params.name == "HS":
         descr.append("HS (high strength steel)")
