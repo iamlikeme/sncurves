@@ -136,8 +136,8 @@ def get_sn_curve(name, seawater, cp):
             n2 = np.inf * logS
         else:
             n2 = 10**(c.loga2 - c.m2 * logS)
-        print n1, n2
         return np.where(n1 <= c.N, n1, n2)
+        
     sn.params = c
     sn.__doc__ = """
 Calculates number of stress cycles to failure for the stress range *sigma*.
