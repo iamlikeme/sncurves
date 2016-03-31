@@ -70,7 +70,17 @@ __SNCurves = SNCurves[:]  # Make a copy of parameters for the latest revision of
 
 
 
-def compliance(revision=None, verbose=True):
+def compliance(revision=None):
+    """
+    Select revision of DNVGL-RP-C0005 / DNV-RP-C203. Argument *revision*
+    should be one of:
+      *  None (default) to return the active revision
+      * 'latest' for the latest revision
+      * '2014.06' for DNVGL-RP-0005:2014-06
+      * '2012.10' for DNV-RP-C203 October 2012
+
+    Returns a string with the name of the active revision.
+    """
     revisions = ("latest", "2014.06", "2012.10")
     global SNCurves, __compliance
 
@@ -113,6 +123,13 @@ def compliance(revision=None, verbose=True):
 
 
 def get_sn_curve(name, seawater, cp):
+    """
+    Returns a function which implements the selected S-N curve.
+    Aguments:
+        name     - string, name of the S-N curve
+        seawater - True for S-N curve in seawater, False for S-N curve in air
+        cp       - True for S-N curve with cathodic protection, False otherwise
+    """
     for c in SNCurves:
         if c.name == name and c.seawater == seawater and c.cp == cp:
             break
@@ -159,10 +176,10 @@ Returns: a number or a numpy array with a shape corresponding to *sigma*.
     return sn
 
 
-def make_description(params):
+def make_description(params):    
     descr = []
     if params.name == "HS":
-        descr.append("high strength steel")
+        descr.append("HS (high strength steel)")
     else:
         descr.append(params.name)
     if params.seawater:
@@ -176,4 +193,4 @@ def make_description(params):
     return " ".join(descr)
 
 
-compliance(revision="latest", verbose=False)
+compliance(revision="latest")
