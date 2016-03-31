@@ -1,15 +1,17 @@
-import unittest, sn, csv, os, numpy as np
+import unittest, sncurves, csv, os, numpy as np
 
 
-class TestSNCurves(unittest.TestCase):
+class TestSNCurves_2014_06(unittest.TestCase):
     longMessage = True
-
+    filename = "benchmark-sncurve-2014.06.csv"
+    
     def setUp(self):
         # Load benchamrk data for DNVGL-RP-C0005:2014-06
-        filename = os.path.join(os.path.dirname(__file__), "benchmark-sncurve-2014.06.csv")
+        filename = os.path.join(os.path.dirname(__file__), self.filename)
         with open(filename) as fo:
-            self.data_2014_06 = list(csv.DictReader(fo))
-        for item in self.data_2014_06:
+            self.data = list(csv.DictReader(fo))
+
+        for item in self.data:
             # Convert TRUE/FALSE to booleans
             item["seawater"] = eval(item["seawater"].title())
             item["cp"] = eval(item["cp"].title())
@@ -19,11 +21,41 @@ class TestSNCurves(unittest.TestCase):
             item["t"] = float(item["t"])
             item["n"] = np.float64(item["n"])
 
+
+    def test_fatigue_life(self):
+        sncurves.compliance("2014.06")
+        for item in self.data:
+            f = sncurves.get_sn_curve(item["curve"], seawater=item["seawater"], cp=item["cp"])
+            expected = item["n"]
+            sigma = item["sigma"]
+            t = item["t"]
+            
+            self.assertAlmostEqual(f(sigma, t=t), expected, delta=1.0,
+                msg="\nTEST ITEM = {}\n{}".format(item, f.params))
+
+            if item["t"] <= 25.0:
+                # For t <= 25 it should be ok to skip argument *t*
+                self.assertAlmostEqual(f(sigma), expected, delta=1.0,
+                    msg="\nTEST ITEM = {}\n{}".format(item, f.params))
+
+            elif f.params.k != 0:
+                # For t > 25 and k != 0 the result should be incorrect
+                # if argument *t* is omitted
+                self.assertNotEqual(round(f(sigma)), round(expected),
+                    msg="\nTEST ITEM = {}\n{}".format(item, f.params))
+
+
+
+class TestSNCurves_2012_10(unittest.TestCase):
+    longMessage = True
+    filename = "benchmark-sncurve-2012.10.csv"
+    
+    def setUp(self):
         # Load benchamrk data for DNV-RP-C203 October 2012
-        filename = os.path.join(os.path.dirname(__file__), "benchmark-sncurve-2012.10.csv")
+        filename = os.path.join(os.path.dirname(__file__), self.filename)
         with open(filename) as fo:
-            self.data_2012_10 = list(csv.DictReader(fo))
-        for item in self.data_2012_10:
+            self.data = list(csv.DictReader(fo))
+        for item in self.data:
             # Convert TRUE/FALSE to booleans
             item["seawater"] = eval(item["seawater"].title())
             item["cp"] = eval(item["cp"].title())
@@ -31,60 +63,29 @@ class TestSNCurves(unittest.TestCase):
             # Convert numbers
             item["sigma"] = float(item["sigma"])
             item["t"] = float(item["t"])
-            item["n"] = np.float64(item["n"])            
+            item["n"] = np.float64(item["n"])
+
+
+    def test_fatigue_life(self):
+        sncurves.compliance("2012.10")
+        for item in self.data:
+            f = sncurves.get_sn_curve(item["curve"], seawater=item["seawater"], cp=item["cp"])
+            expected = item["n"]
+            sigma = item["sigma"]
+            t = item["t"]
             
-
-    def test_fatigue_life_thin_2014_06(self):
-        sn.compliance("2014.06")
-        for item in self.data_2014_06:
-            if item["t"] > 25.0:
-                continue
-            expected = item["n"]
-            sigma = item["sigma"]
-            t = item["t"]
-            f = sn.get_sn_curve(item["curve"], seawater=item["seawater"], cp=item["cp"])
-            self.assertAlmostEqual(f(sigma), expected, delta=1.0,
-                msg="\nTEST ITEM = {}\n{}".format(item, f.params))
-            self.assertAlmostEqual(f(sigma, t=t), expected, delta=1.0,
-                msg="\nTEST ITEM = {}\n{}".format(item, f.params))
-                
-
-    def test_fatigue_life_thick_2014_06(self):
-        sn.compliance("2014.06")
-        for item in self.data_2014_06:
-            if item["t"] < 25.0:
-                continue
-            expected = item["n"]
-            sigma = item["sigma"]
-            t = item["t"]
-            f = sn.get_sn_curve(item["curve"], seawater=item["seawater"], cp=item["cp"])
             self.assertAlmostEqual(f(sigma, t=t), expected, delta=1.0,
                 msg="\nTEST ITEM = {}\n{}".format(item, f.params))
 
+            if item["t"] <= 25.0:
+                # For t <= 25 it should be ok to skip argument *t*
+                self.assertAlmostEqual(f(sigma), expected, delta=1.0,
+                    msg="\nTEST ITEM = {}\n{}".format(item, f.params))
 
-    def test_fatigue_life_thin_2012_10(self):
-        sn.compliance("2012.10")
-        for item in self.data_2012_10:
-            if item["t"] > 25.0:
-                continue
-            expected = item["n"]
-            sigma = item["sigma"]
-            t = item["t"]
-            f = sn.get_sn_curve(item["curve"], seawater=item["seawater"], cp=item["cp"])
-            self.assertAlmostEqual(f(sigma), expected, delta=1.0,
-                msg="\nTEST ITEM = {}\n{}".format(item, f.params))
-            self.assertAlmostEqual(f(sigma, t=t), expected, delta=1.0,
-                msg="\nTEST ITEM = {}\n{}".format(item, f.params))
-                
+            elif f.params.k != 0:
+                # For t > 25 and k != 0 the result should be incorrect
+                # if argument *t* is omitted
+                self.assertNotEqual(round(f(sigma)), round(expected),
+                    msg="\nTEST ITEM = {}\n{}".format(item, f.params))
 
-    def test_fatigue_life_thick_2012_10(self):
-        sn.compliance("2012.10")
-        for item in self.data_2012_10:
-            if item["t"] < 25.0:
-                continue
-            expected = item["n"]
-            sigma = item["sigma"]
-            t = item["t"]
-            f = sn.get_sn_curve(item["curve"], seawater=item["seawater"], cp=item["cp"])
-            self.assertAlmostEqual(f(sigma, t=t), expected, delta=1.0,
-                msg="\nTEST ITEM = {}\n{}".format(item, f.params))
+
