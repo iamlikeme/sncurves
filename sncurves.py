@@ -153,7 +153,11 @@ def get_sn_curve(name, seawater, cp):
             n2 = np.inf * logS
         else:
             n2 = 10**(c.loga2 - c.m2 * logS)
-        return np.where(n1 <= c.N, n1, n2)
+        n = np.where(n1 <= c.N, n1, n2)
+        if n.shape:
+            return n
+        else:
+            return float(n)
         
     sn.params = c
     sn.__doc__ = """
