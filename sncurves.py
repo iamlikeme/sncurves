@@ -174,6 +174,11 @@ Arguments:
 Returns: a number or a numpy array with a shape corresponding to *sigma*.
     """.format(_make_description(c), compliance()).strip()
     return sn
+    
+
+def names():
+    "Returns a list of valid S-N curve names"
+    return sorted(set(params.name for params in SNCurves))
 
 
 def _make_description(params):    
