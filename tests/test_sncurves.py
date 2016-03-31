@@ -41,7 +41,7 @@ class TestSNCurves_2014_06(unittest.TestCase):
             elif f.params.k != 0:
                 # For t > 25 and k != 0 the result should be incorrect
                 # if argument *t* is omitted
-                self.assertNotEqual(round(f(sigma)), round(expected),
+                self.assertNotEqual(np.round(f(sigma)), round(expected),
                     msg="\nTEST ITEM = {}\n{}".format(item, f.params))
 
 
@@ -85,7 +85,7 @@ class TestSNCurves_2012_10(unittest.TestCase):
             elif f.params.k != 0:
                 # For t > 25 and k != 0 the result should be incorrect
                 # if argument *t* is omitted
-                self.assertNotEqual(round(f(sigma)), round(expected),
+                self.assertNotEqual(np.round(f(sigma)), round(expected),
                     msg="\nTEST ITEM = {}\n{}".format(item, f.params))
 
 
