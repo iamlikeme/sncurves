@@ -43,6 +43,14 @@ class TestSNCurves_2014_06(unittest.TestCase):
                 # if argument *t* is omitted
                 self.assertNotEqual(np.round(f(sigma)), round(expected),
                     msg="\nTEST ITEM = {}\n{}".format(item, f.params))
+    
+    def test_scf(self):
+        sncurves.compliance("2014.06")
+        sn = sncurves.get_sn_curve("T", seawater=True, cp=True)
+        self.assertEqual(sn(1000), sn(100, scf=10))
+        
+        # For curve T the thickness effect factor k changes for scf > 10
+        self.assertNotEqual(sn(1000, t=50), sn(10, t=50, scf=100))
 
 
 
@@ -88,4 +96,11 @@ class TestSNCurves_2012_10(unittest.TestCase):
                 self.assertNotEqual(np.round(f(sigma)), round(expected),
                     msg="\nTEST ITEM = {}\n{}".format(item, f.params))
 
+    def test_scf(self):
+        sncurves.compliance("2012.10")
+        sn = sncurves.get_sn_curve("T", seawater=True, cp=True)
+        self.assertEqual(sn(1000), sn(100, scf=10))
+        
+        # For curve T the thickness effect factor k changes for scf > 10
+        self.assertNotEqual(sn(1000, t=50), sn(10, t=50, scf=100))
 
